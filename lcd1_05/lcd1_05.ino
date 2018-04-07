@@ -1,3 +1,4 @@
+
 /*
      Pinouts:
                                       +-----+
@@ -38,8 +39,27 @@
 */
 #include <LiquidCrystal.h>          //biblioteka obsługi LCD
 
-#include "Timers.h"                 // dołączona biblioteka Timers z forum android http://bit.ly/arduinotimer
-Timers <2> akcja;
+//#include "Timers.h"               // dołączona biblioteka Timers z forum android http://bit.ly/arduinotimer
+//Timers <2> akcja;
+
+//#include <TimerOne.h>             //biblioteka obslugi timera TimerOne https://github.com/PaulStoffregen/TimerOne
+
+#include <Task.h>
+#include <DelayRun.h>
+#include <Rotary.h>
+#include <SoftPwmTask.h>
+#include <Heartbeat.h>
+#include <Dimmer.h>
+#include <BlinkTask.h>
+#include <Debouncer.h>
+#include <TonePlayer.h>
+#include <SoftTimer.h>
+#include <FrequencyTask.h>
+#include <PciListenerImp2.h>
+#include <IPciChangeHandler.h>
+#include <PciListener.h>
+#include <PciListenerImp.h>
+#include <PciManager.h>
 
 unsigned long currentTime;
 unsigned long loopTime;
@@ -72,11 +92,25 @@ byte st[8] = {                      //tablica znaku stopnia dla wyświetlacza LC
   B11111,
 };
 
-
-void noweznaki() {
-  lcd.clear();
+void impulsator(Task* me) {
+  lcd.clear();                      //czyszczenie LCD
   odczyt_A = digitalRead(pin_A);    //czytaj stany impulsatora
   odczyt_B = digitalRead(pin_B);
+  if ((odczyt_B != odczyt_B_ostatni && odczyt_A == 1) || (odczyt_A != odczyt_A_ostatni && odczyt_B == 0 && odczyt_A == 0)){                           
+    if (pwm - delta >= 0)           //zmniejsz wartość, ale nie zejdź poniżej zera
+      pwm -= delta;
+  }
+
+  if ((odczyt_A != odczyt_A_ostatni && odczyt_B == 1) || (odczyt_B != odczyt_B_ostatni && odczyt_A == 0 && odczyt_B == 0)){
+    if (pwm + delta <= 255)        //zwiększ wartość, ale nie przekrocz 255
+      pwm += delta;
+  }
+  odczyt_A_ostatni = odczyt_A;     // zapisz wartość A na następną pętlę
+  odczyt_B_ostatni = odczyt_B;     // zapisz wartość B na następną pętlę
+  noweznaki();
+}
+
+void noweznaki() {
   lcd.setCursor(0, 0);             //ustawienie kursora
   lcd.print("U=");                 //wyświetlenie napisu U=
   lcd.print(pwm);
@@ -103,13 +137,17 @@ void sprawdzprzycisk(int SW, int i)
   }
 }
 
-void przyciski() {
+
+
+void przyciski(Task* me) {
   sprawdzprzycisk(SW1, 1);         //sprawdzenie czy naciśnięto przycisk S1 
   sprawdzprzycisk(SW2, 2);         //sprawdzenie czy naciśnięto przycisk S2 
   sprawdzprzycisk(SW3, 3);         //sprawdzenie czy naciśnięto przycisk S3 
   sprawdzprzycisk(SW4, 4);         //sprawdzenie czy naciśnięto przycisk S4
 }
 
+Task t1(30, impulsator);
+Task t2(122, przyciski);
 
 void setup() {                     //funkcja inicjalizacji
   lcd.begin(8, 2);                 //konfigurowanie rozdzielczości LCD
@@ -131,14 +169,17 @@ void setup() {                     //funkcja inicjalizacji
   digitalWrite(Led2, LOW);
   digitalWrite(Led3, LOW);
   digitalWrite(Led4, LOW);
-  akcja.attach(0, 122, przyciski); // Wątek 1
-  akcja.attach(1, 100, noweznaki); // Wątek 2
+  //akcja.attach(0, 122, przyciski); // Wątek 1
+  //akcja.attach(1, 30, impulsator); // Wątek 2
   loopTime = currentTime;
   pinMode(pin_A, INPUT);
   pinMode(pin_B, INPUT);
+  //Timer1.initialize(30000);      //inicjalizacja timer 1 - przerwanie co 100 ms
+  //Timer1.attachInterrupt(impulsator);   //uruchomienie przerwania od timer 1 w procedurze on_A
+  //attachInterrupt(pin_A, on_A, RISING);
+  //attachInterrupt(pin_B, on_B, RISING);
+  SoftTimer.add(&t1);
+  SoftTimer.add(&t2);
 }
 
-void loop() {                      //pętla główna programu
-  akcja.process();                 // inicjalizacja lub aktualizacja wszystkich procedur(wątków, zdarzeń itp.)
-}                                  //koniec pętli głównej
 
