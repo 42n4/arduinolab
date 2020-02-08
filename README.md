@@ -1,9 +1,9 @@
 # ArduinoLab - my arduino laboratory exercises. 
 Use the smallest timer library from Polish Arduino forum: http://bit.ly/arduinotimer - in file [TimersForumArduino.zip](https://github.com/pwasiewi/arduinolab/blob/master/TimersForumArduino.zip) 
 
-## Dice rolling using the Arduino device was always in my dreams.
+## Dice rolling using the Arduino device was always in my dreams
 <img src="https://github.com/pwasiewi/arduinolab/blob/master/images/M5Stick-C.jpg" width="250" align="right" />
-Thus, I get the M5Stich-C that is an amazing device based on ESP32 with a small LCD display of 80 × 160 pixel, but bright and clear. 
+Thus, I get the M5StickC that is an amazing device (as you can see in exemplary projects from https://www.hackster.io/m5stack) based on a ESP32 development board with 0.96 inch TFT color screen (80 * 160 resolution - very bright and clear), Red LED, two user buttons and a power switch, Microphone, IR transmitter, 6-axis IMU (SH200Q) and 80 mAH battery. The ESP32 module ESP32-Pico in M5StickC also has a built-in 4MB flash. I with my son made not only usual dices (from 1 to 8 ones), but also a special version for boardgame Memoir'44 - https://boardgamegeek.com/boardgame/10630/memoir-44.
 
 ### How to load the sketch
 
@@ -34,19 +34,52 @@ Tick: Import All Images You can also output all the images with “Convert ... a
 ### Hardware components
 The [M5Stick-C](https://github.com/m5stack/M5StickC) is a device with multiple components as processor, sensors, interrupters and LED. The processor features are:
 
-|   |   |
-|---|---|
-|Microcontroler|ESP32 Pico|
-|Frequency|240MHz|
-|Flash|4MB|
-|RAM|320KB|
+**Red LED & IR transmitter & BUTTON A & BUTTON B**
 
-- **I2C BM8563** : Realizes the RTC function. Address: 0x15. 
-- **AXP192** :  power management IC. 
-- **ST7735S** : LCD IPS Display 80 × 160 pixel, 0,96"
-- **SH200Q** : IMU Movement and positioning 6 axis inertial sensor.
-- **SPM1423** : PDM Micropohne
-- **IR** : IR Transmitter
+<table>
+ <tr><td>ESP32 chip</td><td>GPIO10</td><td>GPIO9</td><td>GPIO37</td><td>GPIO39</td></tr>
+ <tr><td>Red LED</td><td>LED pin</td><td> </td><td> </td><td> </td></tr>
+ <tr><td>IR transmitter</td><td> </td><td>transmitter pin</td><td> </td><td> </td></tr>
+<tr><td>BUTTON A</td><td> </td><td> </td><td>button pin</td><td> </td></tr>
+<tr><td>BUTTON B</td><td> </td><td> </td><td> </td><td>button pin</td></tr>
+</table>
+
+**TFT Screen**
+
+*Driver IC: [ST7735S](https://github.com/m5stack/M5-Schematic/blob/master/Core/ST7735S_v1.1.pdf)*
+
+*Resolution: 80 * 160*
+
+<table>
+ <tr><td>ESP32 chip</td><td>GPIO15</td><td>GPIO13</td><td>GPIO23</td><td>GPIO18</td><td>GPIO5</td></tr>
+ <tr><td>TFT Screen</td><td>TFT_MOSI</td><td>TFT_CLK</td><td>TFT_DC</td><td>TFT_RST</td><td>TFT_CS</td></tr>
+</table>
+
+**GROVE interface**
+
+<table>
+ <tr><td>ESP32 chip</td><td>GPIO33</td><td>GPIO32</td><td>5V</td><td>GND</td></tr>
+ <tr><td>GROVE interface</td><td>SCL</td><td>SDA</td><td>5V</td><td>GND</td></tr>
+</table>
+
+**Microphone ([SPM1423](https://github.com/m5stack/M5-Schematic/blob/master/Core/SPM1423HM4H-B.pdf))**
+
+<table>
+ <tr><td>ESP32 chip</td><td>GPIO0</td><td>GPIO34</td></tr>
+ <tr><td>Microphone</td><td>SCL</td><td>SDA</td></tr>
+</table>
+
+**6-axis IMU ([SH200Q](https://github.com/m5stack/M5-Schematic/blob/master/Core/SH200Q.pdf)) & Power Mangement IC ([AXP192](https://github.com/m5stack/M5-Schematic/blob/master/Core/AXP192%20Datasheet%20v1.13_cn.pdf))**
+
+<table>
+ <tr><td>ESP32 chip</td><td>GPIO22</td><td>GPIO21</td>
+ <tr><td>6-axis IMU (SH200Q)</td><td>SCL</td><td>SDA</td>
+ <tr><td>Power Mangement IC (AXP192)</td><td>SCL</td><td>SDA</td>
+</table>
+
+**M5StickC Memoir'44 Dices
+
+<img src="https://github.com/pwasiewi/arduinolab/blob/master/images/dicememoir44.jpg" alt="M5StickCMemoir44">
 
 ### Software components
 - [Arduino IDE](https://www.hackster.io/arduino/products/arduino-ide?ref=project-8e87cc)
